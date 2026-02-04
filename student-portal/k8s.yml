@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Unique key of the Deployment instance
+  name: myapp
+spec:
+  # 3 Pods should exist at all times.
+  replicas: 5
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        # Apply this label to pods and default
+        # the Deployment label selector to this value
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        # Run this image
+        image: shubhamm18/webapp:02

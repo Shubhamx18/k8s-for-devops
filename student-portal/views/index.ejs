@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="header">
+        <nav class="nav">
+            <div class="logo">🎓 Student Portal</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/register">Register</a></li>
+                <li><a href="/students">All Students.</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="hero">
+        <h1>Welcome to Student Registration Portal</h1>
+        <p>Manage student registrations with ease and efficiency</p>
+        <a href="/register" class="btn btn-primary">Register New Student</a>
+        <a href="/students" class="btn">View All Students</a>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid" id="statsContainer">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>About the Portal</h2>
+            </div>
+            <div style="line-height: 1.8;">
+                <p style="margin-bottom: 1rem;">
+                    Our Student Registration Portal is a comprehensive solution designed to streamline 
+                    the student enrollment process. With an intuitive interface and powerful features, 
+                    managing student data has never been easier.
+                </p>
+                <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; color: var(--primary-color);">
+                    Key Features
+                </h3>
+                <ul style="list-style-position: inside; color: var(--text-secondary);">
+                    <li>Easy student registration with comprehensive data collection</li>
+                    <li>View and manage all registered students in one place</li>
+                    <li>Real-time statistics and analytics dashboard</li>
+                    <li>Search and filter functionality for quick access</li>
+                    <li>Responsive design that works on all devices</li>
+                    <li>Clean and modern user interface</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

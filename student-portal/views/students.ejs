@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="header">
+        <nav class="nav">
+            <div class="logo">🎓 Student Portal</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/register">Register</a></li>
+                <li><a href="/students">All Students</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>All Registered Students</h2>
+                <a href="/register" class="btn btn-primary">+ Add New Student</a>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <% if (students.length > 0) { %>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="form-control" 
+                        placeholder="🔍 Search students by name, email, or course..."
+                    >
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Course</th>
+                                <th>Registered Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% students.forEach(student => { %>
+                                <tr>
+                                    <td>#<%= student.id %></td>
+                                    <td>
+                                        <a href="/student/<%= student.id %>">
+                                            <%= student.firstName %> <%= student.lastName %>
+                                        </a>
+                                    </td>
+                                    <td><%= student.email %></td>
+                                    <td><%= student.phone || 'N/A' %></td>
+                                    <td>
+                                        <span class="badge badge-primary">
+                                            <%= student.course %>
+                                        </span>
+                                    </td>
+                                    <td><%= new Date(student.registeredAt).toLocaleDateString() %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <a href="/student/<%= student.id %>" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                                View
+                                            </a>
+                                            <button 
+                                                onclick="deleteStudent(<%= student.id %>)" 
+                                                class="btn btn-danger"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 1.5rem; color: var(--text-secondary); text-align: center;">
+                    Total Students: <strong><%= students.length %></strong>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    <h3>No Students Registered Yet</h3>
+                    <p>Get started by registering your first student!</p>
+                    <a href="/register" class="btn btn-primary" style="margin-top: 1rem;">
+                        Register First Student
+                    </a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

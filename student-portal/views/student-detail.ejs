@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="header">
+        <nav class="nav">
+            <div class="logo">🎓 Student Portal</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/register">Register</a></li>
+                <li><a href="/students">All Students</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Student Details</h2>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="/students" class="btn btn-secondary">← Back to List</a>
+                    <button 
+                        onclick="deleteStudent(<%= student.id %>)" 
+                        class="btn btn-danger"
+                    >
+                        Delete Student
+                    </button>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div style="text-align: center; padding: 2rem 0; border-bottom: 2px solid var(--border-color); margin-bottom: 2rem;">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem; font-weight: bold;">
+                    <%= student.firstName.charAt(0) + student.lastName.charAt(0) %>
+                </div>
+                <h2 style="margin-bottom: 0.5rem;">
+                    <%= student.firstName %> <%= student.lastName %>
+                </h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Student ID: #<%= student.id %>
+                </p>
+                <span class="badge badge-primary" style="font-size: 1rem; padding: 0.5rem 1rem; margin-top: 0.5rem;">
+                    <%= student.course %>
+                </span>
+            </div>
+
+            <div class="student-info">
+                <div class="info-item">
+                    <div class="info-label">Email Address</div>
+                    <div class="info-value"><%= student.email %></div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Phone Number</div>
+                    <div class="info-value"><%= student.phone || 'Not provided' %></div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Date of Birth</div>
+                    <div class="info-value">
+                        <%= student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not provided' %>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Gender</div>
+                    <div class="info-value"><%= student.gender || 'Not specified' %></div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Course/Program</div>
+                    <div class="info-value"><%= student.course %></div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Registration Date</div>
+                    <div class="info-value">
+                        <%= new Date(student.registeredAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                    </div>
+                </div>
+            </div>
+
+            <% if (student.address) { %>
+                <div style="margin-top: 2rem;">
+                    <div class="info-item">
+                        <div class="info-label">Address</div>
+                        <div class="info-value" style="line-height: 1.6;">
+                            <%= student.address %>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--border-color); text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+                <p>This student record was created on <%= new Date(student.registeredAt).toLocaleString() %></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
