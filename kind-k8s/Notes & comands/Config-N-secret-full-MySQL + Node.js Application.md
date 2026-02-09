@@ -318,21 +318,3 @@ kubectl apply -f node-app-service.yaml
 ✔ This is **real production‑style Kubernetes**
 
 ---
-
-📌 You can directly use this file as:
-
-* `README.md`
-* Project documentation
-* Interview revision notes
-* GitHub showcase
-
----
-
-If you want next:
-
-* Add **Ingress**
-* Add **MySQL replication**
-* Convert this into **Helm chart**
-* Failure & restart scenarios
-
-Just tell me 👍
