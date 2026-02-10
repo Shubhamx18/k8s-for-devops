@@ -1,36 +1,38 @@
-# 🚀 MySQL + Node.js Application on Kubernetes (Complete Working Setup)
+# MySQL + Node.js on Kubernetes
 
-This document contains a **complete, real‑world Kubernetes setup** using:
+A working Kubernetes setup that runs a Node.js app backed by a MySQL database. Built this to get hands-on with StatefulSets, PVCs, and how services wire everything together in a real namespace.
 
-* **StatefulSet** → MySQL (database)
-* **Deployment** → Node.js web application
-* **ConfigMap** → non‑sensitive configuration
-* **Secret** → sensitive data (password)
-* **Service** → internal networking
-* **PVC** → persistent MySQL data
+## Stack
 
-Everything is written in **one place**, ready to understand, revise, or push to GitHub.
+- **StatefulSet** — MySQL (keeps pod name and storage stable across restarts)
+- **Deployment** — Node.js app (stateless, scales easily)
+- **ConfigMap** — non-sensitive config (DB host, port, name)
+- **Secret** — MySQL password
+- **Headless Service** — stable DNS for MySQL
+- **PVC** — persistent storage for MySQL data
 
 ---
 
-## 🧠 Architecture Overview
+## Architecture
 
 ```
 Node App (Deployment)
         |
         v
-MySQL Service (ClusterIP / Headless)
+MySQL Service (Headless - clusterIP: None)
         |
         v
-MySQL StatefulSet
+MySQL StatefulSet (mysql-0)
         |
         v
-Persistent Volume (PVC)
+PersistentVolume (/var/lib/mysql)
 ```
 
 ---
 
-## 📁 Namespace (Optional but Recommended)
+## Manifests
+
+### 1. Namespace
 
 ```yaml
 apiVersion: v1
@@ -41,12 +43,9 @@ metadata:
 
 ---
 
-## 📄 1. ConfigMap – Application & Database Configuration
+### 2. ConfigMap
 
-**Purpose:**
-
-* Stores **non‑sensitive configuration**
-* Reusable across MySQL and Node app
+Holds non-sensitive database config shared across both MySQL and the Node app.
 
 ```yaml
 apiVersion: v1
@@ -60,19 +59,9 @@ data:
   DB_PORT: "3306"
 ```
 
-**Why ConfigMap?**
-
-* No hardcoding inside images
-* Same image works in dev / prod
-* Easy to update configuration
-
 ---
 
-## 📄 2. Secret – MySQL Password
-
-**Purpose:**
-
-* Stores **sensitive data** securely
+### 3. Secret
 
 ```yaml
 apiVersion: v1
@@ -85,19 +74,17 @@ stringData:
   MYSQL_ROOT_PASSWORD: root
 ```
 
-**Why Secret?**
-
-* Passwords should never be in ConfigMap or GitHub
-* Kubernetes best practice
+> Don't commit real passwords. Use Sealed Secrets or an external vault in production.
 
 ---
 
-## 📄 3. MySQL Headless Service
+### 4. MySQL Headless Service
 
-**Purpose:**
+`clusterIP: None` skips load balancing and gives the StatefulSet pod a stable DNS entry:
 
-* Provides **stable DNS** for MySQL StatefulSet
-* Required for StatefulSet networking
+```
+mysql-0.mysql.myspace.svc.cluster.local
+```
 
 ```yaml
 apiVersion: v1
@@ -110,26 +97,12 @@ spec:
   selector:
     app: mysql
   ports:
-  - port: 3306
+    - port: 3306
 ```
-
-**Key Point:**
-
-* `clusterIP: None` → No load balancing
-* MySQL pod DNS example:
-
-  ```
-  mysql-0.mysql.myspace.svc.cluster.local
-  ```
 
 ---
 
-## 📄 4. MySQL StatefulSet (Database)
-
-**Purpose:**
-
-* Runs MySQL safely
-* Ensures **fixed pod name** and **persistent data**
+### 5. MySQL StatefulSet
 
 ```yaml
 apiVersion: apps/v1
@@ -149,46 +122,35 @@ spec:
         app: mysql
     spec:
       containers:
-      - name: mysql
-        image: mysql:8.0
-        ports:
-        - containerPort: 3306
-        envFrom:
-        - configMapRef:
-            name: mysql-config
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql-secret
-              key: MYSQL_ROOT_PASSWORD
-        volumeMounts:
-        - name: mysql-data
-          mountPath: /var/lib/mysql
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - configMapRef:
+                name: mysql-config
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
   volumeClaimTemplates:
-  - metadata:
-      name: mysql-data
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      resources:
-        requests:
-          storage: 1Gi
+    - metadata:
+        name: mysql-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
 ```
-
-**Why StatefulSet?**
-
-* Pod name never changes (`mysql-0`)
-* Each pod gets its **own PVC**
-* Data survives pod restarts
 
 ---
 
-## 📄 5. Node.js Application Deployment
-
-**Purpose:**
-
-* Runs the web application
-* Connects to MySQL via Service
+### 6. Node.js Deployment
 
 ```yaml
 apiVersion: apps/v1
@@ -207,49 +169,38 @@ spec:
         app: node-app
     spec:
       containers:
-      - name: node-app
-        image: shubhamm18/diffpods:01
-        ports:
-        - containerPort: 3000
-        env:
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: mysql-config
-              key: DB_HOST
-        - name: DB_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: mysql-config
-              key: DB_PORT
-        - name: DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: mysql-config
-              key: MYSQL_DATABASE
-        - name: DB_USER
-          value: root
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql-secret
-              key: MYSQL_ROOT_PASSWORD
+        - name: node-app
+          image: shubhamm18/diffpods:01
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_PORT
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_DATABASE
+            - name: DB_USER
+              value: root
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
 ```
-
-**Why Deployment here?**
-
-* Web app is stateless
-* Easy scaling
-* No local data needed
 
 ---
 
-## 📄 6. Node.js Service
-
-**Purpose:**
-
-* Internal access to Node app
-* Stable networking
+### 7. Node.js Service
 
 ```yaml
 apiVersion: v1
@@ -262,13 +213,15 @@ spec:
   selector:
     app: node-app
   ports:
-  - port: 3000
-    targetPort: 3000
+    - port: 3000
+      targetPort: 3000
 ```
 
 ---
 
-## ▶ Apply Everything (Correct Order)
+## Deploy
+
+Apply in this order — resources need to exist before things that depend on them:
 
 ```bash
 kubectl apply -f namespace.yaml
@@ -280,41 +233,23 @@ kubectl apply -f node-app-deployment.yaml
 kubectl apply -f node-app-service.yaml
 ```
 
----
+Or if you have everything in one file:
 
-## 🔄 Runtime Flow (How Everything Works Together)
+```bash
+kubectl apply -f k8s-complete.yaml
+```
 
-1. ConfigMap & Secret are loaded
-2. MySQL Service creates stable DNS
-3. MySQL StatefulSet starts `mysql-0`
-4. PVC is attached to `/var/lib/mysql`
-5. MySQL reads config + password
-6. Node app starts
-7. Node app reads DB config
-8. App connects to `mysql:3306`
-9. Data stored safely in PVC
+Check everything came up:
+
+```bash
+kubectl get all -n myspace
+```
 
 ---
 
-## 🧠 Core Kubernetes Rules (Remember Forever)
+## Notes
 
-| Component   | Purpose            |
-| ----------- | ------------------ |
-| ConfigMap   | Configuration      |
-| Secret      | Passwords / tokens |
-| PVC         | Data               |
-| StatefulSet | Databases          |
-| Deployment  | Applications       |
-| Service     | Networking         |
-
----
-
-## 🏁 Final Summary
-
-✔ Database data is safe
-✔ Configuration is externalized
-✔ Passwords are secure
-✔ App and DB are properly separated
-✔ This is **real production‑style Kubernetes**
-
----
+- MySQL runs as a StatefulSet so the pod name (`mysql-0`) and PVC stay stable across restarts
+- The Node app connects via the service name `mysql` on port `3306` — Kubernetes DNS resolves it internally
+- Data lives in the PVC, so deleting the pod won't wipe the database
+- Node image pulls from my Docker Hub (`shubhamm18/diffpods:01`) — swap it out for your own build
