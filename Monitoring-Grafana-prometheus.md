@@ -1,7 +1,5 @@
 # Kubernetes Monitoring with Prometheus & Grafana
 
-## A Complete Beginner-Friendly Guide
-
 ---
 
 ## Table of Contents
@@ -753,7 +751,6 @@ helm install monitoring prometheus-community/kube-prometheus-stack -n monitoring
 
 ---
 
-## Quick Reference
 
 ### Common Commands
 
@@ -784,7 +781,7 @@ helm uninstall monitoring -n monitoring
 kind delete cluster
 ```
 
-### Useful Prometheus Queries
+
 
 ```promql
 # Basic health check
@@ -819,60 +816,3 @@ count(kube_pod_status_phase{phase="Running"})
 
 ---
 
-## Summary
-
-### What You Built
-
-✅ Complete monitoring system for Kubernetes  
-✅ Automatic metric collection from nodes and pods  
-✅ Visual dashboards in Grafana  
-✅ Alert capability via Alertmanager  
-✅ Production-ready setup using industry standards  
-
-### The Flow
-
-```
-1. Kind creates Kubernetes cluster
-2. Helm installs monitoring stack
-3. Node Exporter monitors machines
-4. kube-state-metrics monitors Kubernetes objects
-5. Prometheus collects all metrics every 15 seconds
-6. Grafana displays metrics as graphs
-7. Alertmanager sends alerts when thresholds exceed
-```
-
-### Why Each Component
-
-| Component | Purpose | Without It |
-|-----------|---------|------------|
-| Prometheus | Collect & store metrics | No data collection |
-| Grafana | Visualize metrics | Only see raw numbers |
-| Node Exporter | Monitor node health | Can't detect hardware issues |
-| kube-state-metrics | Monitor Kubernetes objects | Can't see pod/deployment status |
-| Alertmanager | Send alerts | Won't know about problems |
-| Helm | Easy installation | Manual YAML file management |
-
-### Next Steps
-
-**To Learn More:**
-1. Create custom alerts
-2. Monitor your own applications
-3. Set up Slack/email notifications
-4. Explore advanced PromQL queries
-5. Create custom Grafana dashboards
-
-**For Production:**
-1. Add persistent storage
-2. Configure high availability
-3. Set up proper authentication
-4. Implement backup strategies
-5. Use Ingress instead of port-forward
-
----
-
-**Remember:** Monitoring isn't optional in production - it's mandatory. This setup gives you visibility into your Kubernetes cluster, helping you detect and fix problems before they impact users.
-
----
-
-*Last Updated: February 2026*  
-*Tested With: Kind 0.20+, Helm 3.12+, Kubernetes 1.27+*
